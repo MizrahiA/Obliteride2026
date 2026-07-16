@@ -5,7 +5,7 @@ const CONFIG = {
   // Supabase project credentials (free tier). Leave blank to run in demo
   // mode with sample lanterns. See README.md for the 10-minute setup.
   SUPABASE_URL: "https://rszbfstzzhyhtykzhoew.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_auODi2OM3h6zUFa_HZThZg_qSpNtOZ9",
+  SUPABASE_ANON_KEY: "sb_secret_hxpjDBw_Fc6nskwND2vTsw_ZWWQHWq1",
 
   // Your Fred Hutch / Obliteride donation page.
   DONATION_URL: "https://secure.fredhutch.org/goto/avi2026",
