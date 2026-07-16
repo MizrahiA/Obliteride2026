@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lantern Sky — Avi's Obliteride 2026 for Fred Hutch</title>
+  <meta name="description" content="Donate to Avi's Obliteride 2026 ride for Fred Hutch Cancer Center and send a lantern into the sky — in honor, in memory, or with a message of support." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏮</text></svg>" />
+</head>
+<body>
+
+  <!-- Night sky -->
+  <canvas id="stars"></canvas>
+  <div id="moon" aria-hidden="true"></div>
+  <div id="lantern-field" aria-live="polite"></div>
+
+  <!-- Foreground scenery -->
+  <div class="scenery" aria-hidden="true">
+    <svg class="hills" viewBox="0 0 1440 260" preserveAspectRatio="none">
+      <path class="hill hill-back" d="M0,180 C240,90 420,150 720,110 C1020,70 1200,150 1440,120 L1440,260 L0,260 Z"/>
+      <path class="hill hill-front" d="M0,220 C300,150 560,210 860,180 C1120,155 1300,210 1440,190 L1440,260 L0,260 Z"/>
+    </svg>
+    <svg class="rider" viewBox="0 0 120 80" aria-hidden="true">
+      <!-- silhouetted cyclist -->
+      <g fill="#05040f">
+        <circle cx="30" cy="62" r="14" fill="none" stroke="#05040f" stroke-width="4"/>
+        <circle cx="90" cy="62" r="14" fill="none" stroke="#05040f" stroke-width="4"/>
+        <path d="M30 62 L52 40 L78 44 L90 62" fill="none" stroke="#05040f" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M52 40 L50 58 L64 60" fill="none" stroke="#05040f" stroke-width="4" stroke-linecap="round"/>
+        <path d="M52 40 C56 28 66 24 74 28" fill="none" stroke="#05040f" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="78" cy="22" r="7"/>
+        <path d="M74 28 L82 42 L78 44" fill="none" stroke="#05040f" stroke-width="5" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <h1>Lantern&nbsp;Sky</h1>
+    <p class="tagline">Avi's Obliteride 2026 &middot; riding to cure cancer faster with <strong>Fred Hutch</strong></p>
+    <p class="counter"><span id="lantern-count">0</span> lanterns lighting the way</p>
+    <div class="header-actions">
+      <button class="btn btn-primary" id="open-flow">🏮 Donate &amp; release a lantern</button>
+      <button class="btn btn-ghost" id="have-code">I already donated — I have a code</button>
+    </div>
+  </header>
+
+  <p class="hint" id="sky-hint">Tap a lantern to read its story ✨</p>
+
+  <!-- Tribute detail card -->
+  <div class="modal-backdrop hidden" id="detail-backdrop">
+    <div class="tribute-card" role="dialog" aria-modal="true" id="detail-card">
+      <button class="close-x" data-close aria-label="Close">&times;</button>
+      <div class="tribute-flame" aria-hidden="true"></div>
+      <p class="tribute-type" id="detail-type"></p>
+      <p class="tribute-message" id="detail-message"></p>
+      <p class="tribute-name" id="detail-name"></p>
+    </div>
+  </div>
+
+  <!-- Donate / unlock / submit flow -->
+  <div class="modal-backdrop hidden" id="flow-backdrop">
+    <div class="flow-modal" role="dialog" aria-modal="true">
+      <button class="close-x" data-close aria-label="Close">&times;</button>
+
+      <!-- Step 1: donate or code -->
+      <section class="flow-step" id="step-donate">
+        <h2>Light up the sky</h2>
+        <p>Every dollar goes to lifesaving cancer research at Fred Hutch. Donate, then come back here to release your lantern.</p>
+        <a class="btn btn-primary btn-wide" id="donate-link" href="#" target="_blank" rel="noopener">💛 Donate to Avi's ride</a>
+        <button class="btn btn-ghost btn-wide hidden" id="confirm-donated">✓ I just donated — continue</button>
+        <div class="divider"><span>or</span></div>
+        <label class="field-label" for="code-input">Already donated? Enter your supporter code</label>
+        <div class="code-row">
+          <input type="text" id="code-input" placeholder="Supporter code" autocomplete="off" />
+          <button class="btn btn-ghost" id="code-submit">Unlock</button>
+        </div>
+        <p class="error hidden" id="code-error">Hmm, that code doesn't match. Check with Avi!</p>
+      </section>
+
+      <!-- Step 2: tribute form -->
+      <section class="flow-step hidden" id="step-form">
+        <h2>Your lantern</h2>
+        <form id="tribute-form">
+          <label class="field-label">This lantern is…</label>
+          <div class="type-picker" role="radiogroup">
+            <label><input type="radio" name="type" value="honor" checked /><span>🌸 In honor of</span></label>
+            <label><input type="radio" name="type" value="memory" /><span>🕯️ In memory of</span></label>
+            <label><input type="radio" name="type" value="message" /><span>💬 A special message</span></label>
+          </div>
+
+          <label class="field-label" for="message-input" id="message-label">Who are you honoring?</label>
+          <textarea id="message-input" rows="3" required placeholder="e.g. Grandma Ruth, the toughest person I know"></textarea>
+          <p class="char-count"><span id="char-count">0</span>/<span id="char-max">280</span></p>
+
+          <label class="field-label" for="name-input">Your name</label>
+          <input type="text" id="name-input" placeholder="Your name" maxlength="60" />
+          <label class="checkbox-row">
+            <input type="checkbox" id="show-name" checked />
+            <span>Show my name on the lantern</span>
+          </label>
+
+          <button class="btn btn-primary btn-wide" type="submit" id="submit-btn">Release my lantern 🏮</button>
+          <p class="error hidden" id="submit-error"></p>
+        </form>
+      </section>
+
+      <!-- Step 3: thank you -->
+      <section class="flow-step hidden" id="step-thanks">
+        <div class="thanks-lantern" aria-hidden="true">🏮</div>
+        <h2>Thank you!</h2>
+        <p>Your lantern has been lit. It will rise into the sky as soon as Avi approves it — usually within a day.</p>
+        <button class="btn btn-primary btn-wide" data-close>Back to the sky</button>
+      </section>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>Obliteride 2026 · 100% of donations fund research at <a href="https://www.fredhutch.org" target="_blank" rel="noopener">Fred Hutch Cancer Center</a></p>
+    <p class="demo-note hidden" id="demo-note">Demo mode: showing sample lanterns. Connect Supabase in <code>js/config.js</code> to go live.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
