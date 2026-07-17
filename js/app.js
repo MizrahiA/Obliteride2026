@@ -208,16 +208,12 @@
     showStep(step);
     flowBackdrop.classList.remove("hidden");
     if (step === "donate") {
-      $("#code-error").classList.add("hidden");
       $("#confirm-donated").classList.add("hidden");
     }
   }
 
   $("#open-flow").addEventListener("click", () => openFlow("donate"));
-  $("#have-code").addEventListener("click", () => {
-    openFlow("donate");
-    $("#code-input").focus();
-  });
+  $("#have-code").addEventListener("click", () => openFlow("form"));
 
   $("#donate-link").href = CONFIG.DONATION_URL;
   $("#donate-link").addEventListener("click", () => {
@@ -225,20 +221,6 @@
     setTimeout(() => $("#confirm-donated").classList.remove("hidden"), 800);
   });
   $("#confirm-donated").addEventListener("click", () => showStep("form"));
-
-  function tryCode() {
-    const val = $("#code-input").value.trim();
-    if (val.toLowerCase() === CONFIG.UNLOCK_CODE.toLowerCase()) {
-      $("#code-error").classList.add("hidden");
-      showStep("form");
-    } else {
-      $("#code-error").classList.remove("hidden");
-    }
-  }
-  $("#code-submit").addEventListener("click", tryCode);
-  $("#code-input").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); tryCode(); }
-  });
 
   // --------------------------------------------------------------- the form
   const messageInput = $("#message-input");

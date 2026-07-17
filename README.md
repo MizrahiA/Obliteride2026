@@ -11,8 +11,9 @@ night sky — **in honor of** someone (pink, pulsing like a heartbeat),
 1. A visitor clicks **Donate & release a lantern** → the Fred Hutch donation
    page opens in a new tab → back on the site they confirm "I just donated"
    and the tribute form unlocks.
-2. Anyone who already donated can unlock the form instantly with the code
-   **`Supporter2026`** (set in `js/config.js`).
+2. Anyone who already donated can click **I already donated** to go straight
+   to the tribute form — no code needed, since every tribute is reviewed
+   before it goes live anyway.
 3. The tribute (name + show/hide toggle, type, message ≤ 280 chars) is saved
    **unapproved**. You approve it from `admin.html`, and it rises into the sky.
 
@@ -48,13 +49,13 @@ appear on the sky within a page refresh.
 | File | Purpose |
 |---|---|
 | `index.html` + `css/style.css` + `js/app.js` | The lantern sky experience |
-| `js/config.js` | All settings: Supabase keys, donation URL, unlock code |
+| `js/config.js` | All settings: Supabase keys, donation URL, message length |
 | `admin.html` | Your private approval queue (magic-link login) |
 | `supabase/schema.sql` | Database table + security policies |
 
 ## Customizing
 
-- **Unlock code / donation link / message length** — `js/config.js`.
+- **Donation link / message length** — `js/config.js`.
 - **Colors** — CSS variables at the top of `css/style.css`
   (`--amber`, `--blossom`, `--ember`, sky gradient).
 - **Sample lanterns in demo mode** — `DEMO_TRIBUTES` in `js/app.js`.

@@ -192,12 +192,6 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
 .flow-step h2 { font-size: 1.6rem; margin-bottom: .6rem; }
 .flow-step p { color: var(--ink-dim); line-height: 1.5; margin-bottom: .6rem; }
 
-.divider {
-  display: flex; align-items: center; gap: .8rem;
-  color: var(--ink-dim); margin: 1.2rem 0; font-size: .85rem;
-}
-.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,.15); }
-
 .field-label { display: block; font-size: .85rem; font-weight: 600; margin: 1rem 0 .4rem; }
 input[type="text"], textarea {
   width: 100%; font: inherit; color: var(--ink);
@@ -207,9 +201,6 @@ input[type="text"], textarea {
 }
 input:focus, textarea:focus { outline: 2px solid var(--amber); border-color: transparent; }
 textarea { resize: vertical; }
-
-.code-row { display: flex; gap: .6rem; }
-.code-row input { flex: 1; }
 
 .type-picker { display: grid; gap: .5rem; }
 .type-picker label {
