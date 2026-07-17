@@ -92,7 +92,12 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
 .hills { display: block; width: 100%; height: 26vh; }
 .hill-back  { fill: #0d0a22; }
 .hill-front { fill: #05040f; }
-.space-needle { opacity: .92; }
+
+.space-needle {
+  position: absolute; right: 7%; bottom: 9vh; height: 20vh; width: auto;
+  z-index: 1; opacity: .96;
+}
+@media (max-width: 640px) { .space-needle { height: 14vh; right: 4%; bottom: 7vh; } }
 
 .peloton {
   position: absolute; bottom: 8vh; left: 0; width: 340px; height: 46px;

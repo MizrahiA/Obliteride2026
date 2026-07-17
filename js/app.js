@@ -184,10 +184,14 @@
     card.style.setProperty("--glow", TYPE_GLOW[tribute.type]);
     $("#detail-type").textContent = TYPE_LABEL[tribute.type];
     $("#detail-message").textContent = tribute.message;
-    $("#detail-name").textContent =
-      tribute.show_name && tribute.display_name
-        ? `— ${tribute.display_name}`
-        : "— An anonymous supporter";
+    const nameEl = $("#detail-name");
+    if (tribute.show_name && tribute.display_name) {
+      nameEl.textContent = `— ${tribute.display_name}`;
+      nameEl.classList.remove("hidden");
+    } else {
+      nameEl.textContent = "";
+      nameEl.classList.add("hidden");
+    }
     $("#detail-backdrop").classList.remove("hidden");
   }
 
