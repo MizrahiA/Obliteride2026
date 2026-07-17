@@ -64,16 +64,52 @@
     }));
   }
 
+  // Occasional shooting stars streaking across the sky.
+  let shootingStars = [];
+  function spawnShootingStar() {
+    const startX = Math.random() * canvas.width * 0.6;
+    const startY = Math.random() * canvas.height * 0.35;
+    const angle = (Math.PI / 5) + Math.random() * (Math.PI / 10); // downward-right
+    const speed = 9 + Math.random() * 5;
+    shootingStars.push({
+      x: startX, y: startY,
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+      life: 1,
+    });
+    setTimeout(spawnShootingStar, 7000 + Math.random() * 11000);
+  }
+  setTimeout(spawnShootingStar, 4000 + Math.random() * 6000);
+
   function drawStars(t) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#fdf6d8";
     for (const s of stars) {
-      ctx.globalAlpha = 0.35 + 0.55 * Math.abs(Math.sin(s.phase + t * 0.001 * s.speed));
+      const twinkle = Math.sin(s.phase + t * 0.0011 * s.speed) * Math.sin(s.phase * 1.7 + t * 0.0003);
+      ctx.globalAlpha = Math.max(0.15, 0.55 + 0.45 * twinkle);
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
+
+    shootingStars = shootingStars.filter((sh) => sh.life > 0);
+    for (const sh of shootingStars) {
+      const tailX = sh.x - sh.vx * 3.2;
+      const tailY = sh.y - sh.vy * 3.2;
+      const grad = ctx.createLinearGradient(sh.x, sh.y, tailX, tailY);
+      grad.addColorStop(0, `rgba(255, 250, 230, ${sh.life})`);
+      grad.addColorStop(1, "rgba(255, 250, 230, 0)");
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(sh.x, sh.y);
+      ctx.lineTo(tailX, tailY);
+      ctx.stroke();
+      sh.x += sh.vx;
+      sh.y += sh.vy;
+      sh.life -= 0.02;
+    }
   }
 
   window.addEventListener("resize", buildStars);
@@ -86,6 +122,12 @@
   const TYPE_GLOW = { honor: "var(--blossom)", memory: "var(--amber)", message: "var(--ember)" };
   let count = 0;
 
+  // Lanterns must never drift up behind the header text or buttons.
+  function headerClearance() {
+    const header = document.querySelector(".site-header");
+    return header.getBoundingClientRect().bottom + 24;
+  }
+
   function spawnLantern(tribute, fromBottom = false) {
     const el = document.createElement("button");
     el.className = `lantern lantern--${tribute.type}`;
@@ -97,9 +139,13 @@
     const W = window.innerWidth;
     const H = window.innerHeight;
     // In-memory lanterns rise highest; others settle in the mid-sky.
-    const ceiling =
+    // Never above the header's bottom edge, no matter the tribute type.
+    const clearance = headerClearance();
+    const ceiling = Math.max(
+      clearance,
       tribute.type === "memory" ? H * (0.06 + Math.random() * 0.14)
-                                : H * (0.2 + Math.random() * 0.3);
+                                : H * (0.2 + Math.random() * 0.3)
+    );
     lanterns.push({
       el,
       x: W * (0.05 + Math.random() * 0.9),
