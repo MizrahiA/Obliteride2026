@@ -136,12 +136,12 @@
     const text = tribute.message.trim();
     if (tribute.type !== "honor" && tribute.type !== "memory") return text;
     const words = text.split(/\s+/);
-    if (words.length < 2 || words.length > 4) return text;
+    if (words.length < 2 || words.length > 6) return text;
     if (/[,.;:!?]/.test(text.slice(0, -1))) return text;
     if (!words.every((w) => /^[A-Za-z'-]+\.?$/.test(w))) return text;
-    const first = words[0];
-    const last = words[words.length - 1];
-    return `${first} ${last[0].toUpperCase()}`;
+    const lead = words.slice(0, -1).join(" ");
+    const lastInitial = words[words.length - 1][0].toUpperCase();
+    return `${lead} ${lastInitial}.`;
   }
 
   function spawnLantern(tribute, fromBottom = false) {
