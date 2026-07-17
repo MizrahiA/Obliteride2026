@@ -154,6 +154,13 @@
       sway: 12 + Math.random() * 22,
       swaySpeed: 0.0004 + Math.random() * 0.0005,
       phase: Math.random() * Math.PI * 2,
+      // Slow, wide wander so lanterns cover real ground as they rise, on
+      // top of the quick sway above.
+      driftAmp: 50 + Math.random() * 90,
+      driftSpeed: 0.00008 + Math.random() * 0.00010,
+      driftPhase: Math.random() * Math.PI * 2,
+      // How strongly this particular lantern responds to a wind gust.
+      windFactor: 0.7 + Math.random() * 0.6,
       ceiling,
     });
 
@@ -161,13 +168,49 @@
     $("#lantern-count").textContent = count;
   }
 
+  // Occasional wind gusts sweep every lantern sideways, then let them
+  // settle back to their normal float. windFactor gives each lantern a
+  // slightly different response so the gust doesn't look perfectly uniform.
+  let activeGust = null;
+  function triggerGust() {
+    activeGust = {
+      start: performance.now(),
+      duration: 4000 + Math.random() * 2500,
+      strength: (70 + Math.random() * 110) * (Math.random() < 0.5 ? -1 : 1),
+    };
+    setTimeout(triggerGust, 16000 + Math.random() * 18000);
+  }
+  setTimeout(triggerGust, 7000 + Math.random() * 9000);
+
+  function currentWind(t) {
+    if (!activeGust) return 0;
+    const elapsed = t - activeGust.start;
+    if (elapsed > activeGust.duration) {
+      activeGust = null;
+      return 0;
+    }
+    // Quick ramp up, gentle decay back to a standard float — not a
+    // symmetric bell curve.
+    const progress = elapsed / activeGust.duration;
+    const envelope = Math.sin(Math.pow(progress, 0.6) * Math.PI);
+    return activeGust.strength * envelope;
+  }
+
   function stepLanterns(t) {
     const W = window.innerWidth;
+    const wind = currentWind(t);
     for (const l of lanterns) {
       if (l.y > l.ceiling) l.y -= l.vy;
-      const x = l.x + Math.sin(l.phase + t * l.swaySpeed) * l.sway;
+      const windX = wind * l.windFactor;
+      const x =
+        l.x +
+        Math.sin(l.phase + t * l.swaySpeed) * l.sway +
+        Math.sin(l.driftPhase + t * l.driftSpeed) * l.driftAmp +
+        windX;
+      const clampedX = Math.min(Math.max(x, -20), W - 16);
+      const rotation = Math.max(-16, Math.min(16, windX * 0.11));
       l.el.style.transform =
-        `translate(${Math.min(Math.max(x, 0), W - 36)}px, ${l.y}px)`;
+        `translate(${clampedX}px, ${l.y}px) rotate(${rotation.toFixed(2)}deg)`;
     }
   }
 
