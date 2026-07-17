@@ -128,11 +128,27 @@
     return header.getBoundingClientRect().bottom + 24;
   }
 
+  // For "In honor of" / "In memory of" tributes, a clean "First Last"
+  // style entry (e.g. "Avi Mizrahi") displays as "Avi M" for privacy.
+  // Anything longer or punctuated reads as a fuller message rather than
+  // a bare name, so it's left exactly as written.
+  function honoreeDisplay(tribute) {
+    const text = tribute.message.trim();
+    if (tribute.type !== "honor" && tribute.type !== "memory") return text;
+    const words = text.split(/\s+/);
+    if (words.length < 2 || words.length > 4) return text;
+    if (/[,.;:!?]/.test(text.slice(0, -1))) return text;
+    if (!words.every((w) => /^[A-Za-z'-]+\.?$/.test(w))) return text;
+    const first = words[0];
+    const last = words[words.length - 1];
+    return `${first} ${last[0].toUpperCase()}`;
+  }
+
   function spawnLantern(tribute, fromBottom = false) {
     const el = document.createElement("button");
     el.className = `lantern lantern--${tribute.type}`;
     el.innerHTML = `<div class="paper"></div>`;
-    el.setAttribute("aria-label", `${TYPE_LABEL[tribute.type]}: ${tribute.message}`);
+    el.setAttribute("aria-label", `${TYPE_LABEL[tribute.type]}: ${honoreeDisplay(tribute)}`);
     el.addEventListener("click", () => showDetail(tribute));
     field.appendChild(el);
 
@@ -159,8 +175,15 @@
       driftAmp: 50 + Math.random() * 90,
       driftSpeed: 0.00008 + Math.random() * 0.00010,
       driftPhase: Math.random() * Math.PI * 2,
-      // How strongly this particular lantern responds to a wind gust.
+      // How strongly this particular lantern responds to a wind gust, how
+      // long the gust takes to reach it (so the gust travels across the
+      // sky rather than every lantern moving in lockstep), and its own
+      // little eddy so the push curls instead of sweeping in one flat line.
       windFactor: 0.7 + Math.random() * 0.6,
+      windLag: Math.random() * 2200,
+      swirlPhase: Math.random() * Math.PI * 2,
+      swirlFreq: 1.3 + Math.random() * 1.4,
+      rot: 0,
       ceiling,
     });
 
@@ -168,49 +191,58 @@
     $("#lantern-count").textContent = count;
   }
 
-  // Occasional wind gusts sweep every lantern sideways, then let them
-  // settle back to their normal float. windFactor gives each lantern a
-  // slightly different response so the gust doesn't look perfectly uniform.
+  // Occasional wind gusts sweep the lanterns sideways in a soft, swirling
+  // curl — not a synchronized shove — then let them settle back to their
+  // normal float. Each lantern feels the gust at a slightly different
+  // moment (windLag) and with its own little eddy (swirlPhase/swirlFreq)
+  // layered on top of the main push, so it reads as one fluid gust moving
+  // through the scene rather than every lantern snapping in lockstep.
   let activeGust = null;
   function triggerGust() {
     activeGust = {
       start: performance.now(),
-      duration: 4000 + Math.random() * 2500,
-      strength: (70 + Math.random() * 110) * (Math.random() < 0.5 ? -1 : 1),
+      duration: 6500 + Math.random() * 3000,
+      strength: (55 + Math.random() * 85) * (Math.random() < 0.5 ? -1 : 1),
     };
-    setTimeout(triggerGust, 16000 + Math.random() * 18000);
+    setTimeout(triggerGust, 18000 + Math.random() * 20000);
   }
   setTimeout(triggerGust, 7000 + Math.random() * 9000);
 
-  function currentWind(t) {
+  const smoothstep = (a, b, x) => {
+    const p = Math.max(0, Math.min(1, (x - a) / (b - a)));
+    return p * p * (3 - 2 * p);
+  };
+
+  function windForLantern(t, l) {
     if (!activeGust) return 0;
-    const elapsed = t - activeGust.start;
-    if (elapsed > activeGust.duration) {
-      activeGust = null;
-      return 0;
-    }
-    // Quick ramp up, gentle decay back to a standard float — not a
-    // symmetric bell curve.
+    const elapsed = t - activeGust.start - l.windLag;
+    if (elapsed < 0 || elapsed > activeGust.duration) return 0;
     const progress = elapsed / activeGust.duration;
-    const envelope = Math.sin(Math.pow(progress, 0.6) * Math.PI);
-    return activeGust.strength * envelope;
+    // Gentle rise, gentle fall — no sharp corners anywhere in the curve.
+    const envelope = smoothstep(0, 0.4, progress) * (1 - smoothstep(0.6, 1, progress));
+    // A slow eddy riding on top of the main push, so the lantern curls
+    // through the gust instead of sliding in a single flat line.
+    const swirl = Math.sin(progress * Math.PI * l.swirlFreq + l.swirlPhase) * 0.3 + 0.7;
+    return activeGust.strength * envelope * swirl;
   }
 
   function stepLanterns(t) {
     const W = window.innerWidth;
-    const wind = currentWind(t);
     for (const l of lanterns) {
       if (l.y > l.ceiling) l.y -= l.vy;
-      const windX = wind * l.windFactor;
+      const windX = windForLantern(t, l) * l.windFactor;
       const x =
         l.x +
         Math.sin(l.phase + t * l.swaySpeed) * l.sway +
         Math.sin(l.driftPhase + t * l.driftSpeed) * l.driftAmp +
         windX;
       const clampedX = Math.min(Math.max(x, -20), W - 16);
-      const rotation = Math.max(-16, Math.min(16, windX * 0.11));
+      // Rotation eases toward its target rather than snapping to it, so
+      // the tilt trails the motion like a lantern actually catching air.
+      const targetRot = Math.max(-14, Math.min(14, windX * 0.1));
+      l.rot += (targetRot - l.rot) * 0.05;
       l.el.style.transform =
-        `translate(${clampedX}px, ${l.y}px) rotate(${rotation.toFixed(2)}deg)`;
+        `translate(${clampedX}px, ${l.y}px) rotate(${l.rot.toFixed(2)}deg)`;
     }
   }
 
@@ -226,7 +258,7 @@
     const card = $("#detail-card");
     card.style.setProperty("--glow", TYPE_GLOW[tribute.type]);
     $("#detail-type").textContent = TYPE_LABEL[tribute.type];
-    $("#detail-message").textContent = tribute.message;
+    $("#detail-message").textContent = honoreeDisplay(tribute);
     const nameEl = $("#detail-name");
     if (tribute.show_name && tribute.display_name) {
       nameEl.textContent = `— ${tribute.display_name}`;
