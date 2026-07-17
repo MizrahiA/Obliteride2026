@@ -10,9 +10,6 @@ const CONFIG = {
   // Your Fred Hutch / Obliteride donation page.
   DONATION_URL: "https://secure.fredhutch.org/goto/avi2026",
 
-  // Code that lets people who already donated skip straight to the form.
-  UNLOCK_CODE: "Supporter2026",
-
   // Max tribute length shown on a lantern card.
   MAX_MESSAGE_LENGTH: 280,
 };
