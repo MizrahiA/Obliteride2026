@@ -30,10 +30,17 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
 
 #moon {
   position: fixed; top: 8vh; right: 10vw; width: 72px; height: 72px;
-  border-radius: 50%; z-index: 1;
+  border-radius: 50%; z-index: 1; overflow: hidden;
   background: radial-gradient(circle at 35% 35%, #fdf6d8, #e8d9a0 70%);
   box-shadow: 0 0 60px 18px rgba(253, 246, 216, .25);
 }
+.moon-crater {
+  position: absolute; top: 24%; left: 24%; width: 52%; aspect-ratio: 1;
+  opacity: .9;
+  mix-blend-mode: multiply;
+  filter: saturate(.85) drop-shadow(0 0 1px rgba(0, 0, 0, .1));
+}
+.moon-crater img { width: 100%; height: 100%; display: block; object-fit: contain; }
 
 #lantern-field { position: fixed; inset: 0; z-index: 3; overflow: hidden; }
 
@@ -85,11 +92,26 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
 .hills { display: block; width: 100%; height: 26vh; }
 .hill-back  { fill: #0d0a22; }
 .hill-front { fill: #05040f; }
-.rider {
-  position: absolute; bottom: 9vh; left: 12vw; width: 110px;
+.space-needle { opacity: .92; }
+
+.peloton {
+  position: absolute; bottom: 8vh; left: 0; width: 340px; height: 46px;
   filter: drop-shadow(0 0 1px #000);
+  animation: ride-by 42s linear infinite;
+  animation-delay: 3s;
 }
-@media (max-width: 640px) { .rider { left: 6vw; width: 84px; bottom: 7vh; } }
+.peloton .wheel { transform-box: fill-box; transform-origin: center; animation: wheel-spin .55s linear infinite; }
+
+@keyframes ride-by {
+  0%   { transform: translateX(-60vw); opacity: 0; }
+  4%   { opacity: 1; }
+  38%  { transform: translateX(130vw); opacity: 1; }
+  41%  { opacity: 0; }
+  100% { transform: translateX(130vw); opacity: 0; }
+}
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) { .peloton { bottom: 6.5vh; width: 260px; height: 36px; } }
 
 /* ------------------------------ header -------------------------------- */
 .site-header {

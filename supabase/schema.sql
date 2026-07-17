@@ -27,5 +27,5 @@ create policy "public submit unapproved"
 -- >>> CHANGE THIS EMAIL to the address you'll use on admin.html <<<
 create policy "admin full access"
   on tributes for all
-  using (auth.jwt() ->> 'email' = 'YOUR-ADMIN-EMAIL@example.com')
-  with check (auth.jwt() ->> 'email' = 'YOUR-ADMIN-EMAIL@example.com');
+  using (auth.jwt() ->> 'email' = 'youremail')
+  with check (auth.jwt() ->> 'email' = 'youremail');

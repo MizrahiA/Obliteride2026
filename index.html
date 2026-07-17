@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lantern Sky — Avi's Obliteride 2026 for Fred Hutch</title>
+  <title>Obliteride Sky — Avi's Obliteride 2026 for Fred Hutch</title>
   <meta name="description" content="Donate to Avi's Obliteride 2026 ride for Fred Hutch Cancer Center and send a lantern into the sky — in honor, in memory, or with a message of support." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,32 +15,83 @@
 
   <!-- Night sky -->
   <canvas id="stars"></canvas>
-  <div id="moon" aria-hidden="true"></div>
+  <div id="moon" aria-hidden="true">
+    <div class="moon-crater">
+      <img src="assets/obliteride-logo.png" alt="" />
+    </div>
+  </div>
   <div id="lantern-field" aria-live="polite"></div>
 
   <!-- Foreground scenery -->
   <div class="scenery" aria-hidden="true">
     <svg class="hills" viewBox="0 0 1440 260" preserveAspectRatio="none">
       <path class="hill hill-back" d="M0,180 C240,90 420,150 720,110 C1020,70 1200,150 1440,120 L1440,260 L0,260 Z"/>
+      <g class="space-needle" transform="translate(1180,40)" fill="#05040f">
+        <path d="M0,150 L-2.5,64 L-13,58 L-13,49 L-4,43 L-4,20 L0,2 L4,20 L4,43 L13,49 L13,58 L2.5,64 L0,150 Z"/>
+        <path d="M-2.5,64 L-19,150 L-13,150 L-1.6,70 Z"/>
+        <path d="M2.5,64 L19,150 L13,150 L1.6,70 Z"/>
+        <ellipse cx="0" cy="46" rx="15" ry="3.4"/>
+      </g>
       <path class="hill hill-front" d="M0,220 C300,150 560,210 860,180 C1120,155 1300,210 1440,190 L1440,260 L0,260 Z"/>
     </svg>
-    <svg class="rider" viewBox="0 0 120 80" aria-hidden="true">
-      <!-- silhouetted cyclist -->
-      <g fill="#05040f">
-        <circle cx="30" cy="62" r="14" fill="none" stroke="#05040f" stroke-width="4"/>
-        <circle cx="90" cy="62" r="14" fill="none" stroke="#05040f" stroke-width="4"/>
-        <path d="M30 62 L52 40 L78 44 L90 62" fill="none" stroke="#05040f" stroke-width="4" stroke-linejoin="round"/>
-        <path d="M52 40 L50 58 L64 60" fill="none" stroke="#05040f" stroke-width="4" stroke-linecap="round"/>
-        <path d="M52 40 C56 28 66 24 74 28" fill="none" stroke="#05040f" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="78" cy="22" r="7"/>
-        <path d="M74 28 L82 42 L78 44" fill="none" stroke="#05040f" stroke-width="5" stroke-linecap="round"/>
-      </g>
+
+    <svg class="peloton" viewBox="0 0 520 70" aria-hidden="true">
+      <defs>
+        <symbol id="shadow-cyclist" viewBox="0 0 90 60">
+          <g fill="none" stroke="#05040f" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 46 L34 20 L54 23 L66 46" />
+            <path d="M34 20 L38 40 L66 46" />
+            <path d="M32 20 L29 13" />
+            <path d="M54 23 L58 15" />
+            <path d="M52 14.5 L63 15.5" />
+          </g>
+          <ellipse cx="27" cy="12.5" rx="6" ry="2" fill="#05040f"/>
+          <g class="wheel">
+            <circle cx="16" cy="46" r="12.5" fill="none" stroke="#05040f" stroke-width="3"/>
+            <g stroke="#05040f" stroke-width="1.3">
+              <line x1="16" y1="46" x2="16" y2="34"/>
+              <line x1="16" y1="46" x2="27" y2="46"/>
+              <line x1="16" y1="46" x2="16" y2="58"/>
+              <line x1="16" y1="46" x2="5" y2="46"/>
+              <line x1="16" y1="46" x2="24" y2="38"/>
+              <line x1="16" y1="46" x2="8" y2="54"/>
+              <line x1="16" y1="46" x2="24" y2="54"/>
+              <line x1="16" y1="46" x2="8" y2="38"/>
+            </g>
+          </g>
+          <g class="wheel">
+            <circle cx="66" cy="46" r="12.5" fill="none" stroke="#05040f" stroke-width="3"/>
+            <g stroke="#05040f" stroke-width="1.3">
+              <line x1="66" y1="46" x2="66" y2="34"/>
+              <line x1="66" y1="46" x2="77" y2="46"/>
+              <line x1="66" y1="46" x2="66" y2="58"/>
+              <line x1="66" y1="46" x2="55" y2="46"/>
+              <line x1="66" y1="46" x2="74" y2="38"/>
+              <line x1="66" y1="46" x2="58" y2="54"/>
+              <line x1="66" y1="46" x2="74" y2="54"/>
+              <line x1="66" y1="46" x2="58" y2="38"/>
+            </g>
+          </g>
+          <path d="M29 13 C33 7 44 5 50 12 L54 23" fill="none" stroke="#05040f" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="52" cy="8.5" r="5.2" fill="#05040f"/>
+          <path d="M47.8 6.8 A6 6 0 0 1 57 7.4" fill="none" stroke="#05040f" stroke-width="2"/>
+          <path d="M45 12 C49 13 55 14.5 58 15.5" fill="none" stroke="#05040f" stroke-width="3.8" stroke-linecap="round"/>
+          <path d="M32 20 C36 27 40 34 38 40 C37 43 34 45 30 46" fill="none" stroke="#05040f" stroke-width="4.4" stroke-linecap="round"/>
+          <path d="M32 20 C30 29 24 34 22 40 C21 43 18 45 14 46" fill="none" stroke="#05040f" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+        </symbol>
+      </defs>
+      <use href="#shadow-cyclist" x="0"   y="4"  width="82" height="55"/>
+      <use href="#shadow-cyclist" x="72"  y="0"  width="88" height="59"/>
+      <use href="#shadow-cyclist" x="150" y="8"  width="76" height="51"/>
+      <use href="#shadow-cyclist" x="216" y="2"  width="86" height="58"/>
+      <use href="#shadow-cyclist" x="296" y="7"  width="80" height="54"/>
+      <use href="#shadow-cyclist" x="370" y="1"  width="90" height="60"/>
     </svg>
   </div>
 
   <!-- Header -->
   <header class="site-header">
-    <h1>Lantern&nbsp;Sky</h1>
+    <h1>Obliteride&nbsp;Sky</h1>
     <p class="tagline">Avi's Obliteride 2026 &middot; riding to cure cancer faster with <strong>Fred Hutch</strong></p>
     <p class="counter"><span id="lantern-count">0</span> lanterns lighting the way</p>
     <div class="header-actions">
@@ -124,8 +175,8 @@
     <p class="demo-note hidden" id="demo-note">Demo mode: showing sample lanterns. Connect Supabase in <code>js/config.js</code> to go live.</p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/app.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/app.js"></script>
 </body>
 </html>

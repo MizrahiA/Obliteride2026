@@ -1,4 +1,4 @@
-# 🏮 Lantern Sky — Avi's Obliteride 2026
+# 🏮 Obliteride Sky — Avi's Obliteride 2026
 
 A tribute site for [Avi's Obliteride ride](https://secure.fredhutch.org/goto/avi2026)
 benefiting Fred Hutch Cancer Center. Donors release a glowing lantern into a
