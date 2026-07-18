@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Obliteride Sky — Avi's Obliteride 2026 for Fred Hutch</title>
   <meta name="description" content="Donate to Avi's Obliteride 2026 ride for Fred Hutch Cancer Center and send a lantern into the sky — in honor, in memory, or with a message of support." />
+
+  <!-- Open Graph / Facebook / iMessage -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mizrahia.github.io/Obliteride2026/" />
+  <meta property="og:title" content="Obliteride Sky — Avi's Obliteride 2026 for Fred Hutch" />
+  <meta property="og:description" content="Donate to Avi's Obliteride 2026 ride and light a lantern in honor, in memory, or with a message of support." />
+  <meta property="og:image" content="https://mizrahia.github.io/Obliteride2026/assets/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter/X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Obliteride Sky — Avi's Obliteride 2026 for Fred Hutch" />
+  <meta name="twitter:description" content="Donate to Avi's Obliteride 2026 ride and light a lantern in honor, in memory, or with a message of support." />
+  <meta name="twitter:image" content="https://mizrahia.github.io/Obliteride2026/assets/og-image.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -153,6 +169,9 @@
         <div class="thanks-lantern" aria-hidden="true">🏮</div>
         <h2>Thank you!</h2>
         <p>Your lantern has been lit. It will rise into the sky as soon as Avi approves it — usually within a day.</p>
+        <canvas id="share-canvas" class="share-preview" width="1080" height="1080"></canvas>
+        <button class="btn btn-primary btn-wide" id="share-btn">📤 Share your lantern</button>
+        <button class="btn btn-ghost btn-wide hidden" id="download-btn">⬇️ Download image</button>
         <button class="btn btn-primary btn-wide" data-close>Back to the sky</button>
       </section>
     </div>

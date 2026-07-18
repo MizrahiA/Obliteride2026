@@ -225,6 +225,11 @@ textarea { resize: vertical; }
 .thanks-lantern { font-size: 3.2rem; text-align: center; animation: floaty 2.4s ease-in-out infinite; }
 @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 #step-thanks { text-align: center; }
+.share-preview {
+  width: 100%; max-width: 260px; aspect-ratio: 1;
+  border-radius: 14px; margin: 1rem auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .4);
+}
 
 /* --------------------------- tribute card ----------------------------- */
 .tribute-card { text-align: center; }

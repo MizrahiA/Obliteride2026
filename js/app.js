@@ -346,6 +346,154 @@
     })
   );
 
+  // ------------------------------------------------------------ share card
+  const shareCanvas = $("#share-canvas");
+  const shareCtx = shareCanvas.getContext("2d");
+  const TYPE_COLOR_HEX = { honor: "#ff8fb1", memory: "#ffb347", message: "#ff7a3d" };
+  let lastShareTribute = null;
+
+  // Wraps text top-down (not centered) so layout stays predictable no
+  // matter how many lines the message needs; truncates with an ellipsis
+  // past maxLines rather than overflowing the card.
+  function wrapCanvasText(ctx, text, x, startY, maxWidth, lineHeight, maxLines) {
+    const words = text.split(/\s+/);
+    const lines = [];
+    let line = "";
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+        if (lines.length === maxLines) break;
+      } else {
+        line = test;
+      }
+    }
+    if (lines.length < maxLines && line) lines.push(line);
+    if (lines.length === maxLines && lines.join(" ").length < text.length) {
+      let last = lines[maxLines - 1];
+      while (ctx.measureText(last + "…").width > maxWidth && last.length > 1) {
+        last = last.slice(0, -1);
+      }
+      lines[maxLines - 1] = last.trimEnd() + "…";
+    }
+    lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
+    return lines.length;
+  }
+
+  async function drawShareCard(tribute) {
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch (_) { /* fall back to default fonts */ }
+    }
+    const ctx = shareCtx;
+    const W = shareCanvas.width, H = shareCanvas.height;
+    const glow = TYPE_COLOR_HEX[tribute.type];
+
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+    skyGrad.addColorStop(0, "#070515");
+    skyGrad.addColorStop(0.5, "#181233");
+    skyGrad.addColorStop(1, "#3d2555");
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = "#fdf6d8";
+    for (let i = 0; i < 90; i++) {
+      const sx = Math.random() * W;
+      const sy = Math.random() * H * 0.6;
+      const r = Math.random() * 1.6 + 0.4;
+      ctx.globalAlpha = 0.3 + Math.random() * 0.6;
+      ctx.beginPath();
+      ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Soft glow behind the lantern
+    const cx = W / 2, cy = H * 0.27;
+    const glowRad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 190);
+    glowRad.addColorStop(0, glow + "aa");
+    glowRad.addColorStop(1, glow + "00");
+    ctx.fillStyle = glowRad;
+    ctx.fillRect(cx - 190, cy - 190, 380, 380);
+
+    // Lantern silhouette
+    const lw = 140, lh = 190;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.beginPath();
+    ctx.moveTo(-lw * 0.42, -lh * 0.5);
+    ctx.quadraticCurveTo(-lw * 0.55, -lh * 0.1, -lw * 0.3, lh * 0.35);
+    ctx.quadraticCurveTo(-lw * 0.15, lh * 0.5, 0, lh * 0.5);
+    ctx.quadraticCurveTo(lw * 0.15, lh * 0.5, lw * 0.3, lh * 0.35);
+    ctx.quadraticCurveTo(lw * 0.55, -lh * 0.1, lw * 0.42, -lh * 0.5);
+    ctx.quadraticCurveTo(0, -lh * 0.65, -lw * 0.42, -lh * 0.5);
+    ctx.closePath();
+    const bodyGrad = ctx.createLinearGradient(0, -lh * 0.5, 0, lh * 0.5);
+    bodyGrad.addColorStop(0, glow);
+    bodyGrad.addColorStop(1, "#2a1030");
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = glow;
+    ctx.font = "700 28px Inter, sans-serif";
+    ctx.fillText(TYPE_LABEL[tribute.type].toUpperCase(), W / 2, H * 0.49);
+
+    ctx.fillStyle = "#f5efe6";
+    ctx.font = "600 50px Fraunces, Georgia, serif";
+    const lineHeight = 58;
+    const msgTop = H * 0.55;
+    const lineCount = wrapCanvasText(
+      ctx, honoreeDisplay(tribute), W / 2, msgTop, W * 0.78, lineHeight, 5
+    );
+
+    let nextY = msgTop + lineCount * lineHeight + 30;
+    if (tribute.show_name && tribute.display_name) {
+      ctx.fillStyle = "#b9b0d6";
+      ctx.font = "400 28px Inter, sans-serif";
+      ctx.fillText(`— ${tribute.display_name}`, W / 2, nextY);
+    }
+
+    ctx.fillStyle = "#ffb347";
+    ctx.font = "700 30px Inter, sans-serif";
+    ctx.fillText("🏮 Obliteride Sky", W / 2, H * 0.90);
+    ctx.fillStyle = "#b9b0d6";
+    ctx.font = "400 24px Inter, sans-serif";
+    ctx.fillText("Support Avi's Obliteride 2026 ride for Fred Hutch", W / 2, H * 0.935);
+  }
+
+  $("#share-btn").addEventListener("click", () => {
+    if (!lastShareTribute) return;
+    shareCanvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], "obliteride-sky-lantern.png", { type: "image/png" });
+      const shareText =
+        "I just lit a lantern on Obliteride Sky for Avi's Obliteride 2026 ride. Join me in supporting Fred Hutch Cancer Center!";
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "Obliteride Sky", text: shareText });
+          return;
+        } catch (_) {
+          // User cancelled, or the share sheet failed — fall back to download.
+        }
+      }
+      $("#download-btn").classList.remove("hidden");
+    }, "image/png");
+  });
+
+  $("#download-btn").addEventListener("click", () => {
+    shareCanvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "obliteride-sky-lantern.png";
+      a.click();
+      URL.revokeObjectURL(url);
+    }, "image/png");
+  });
+
   $("#tribute-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = $("#submit-btn");
@@ -372,6 +520,9 @@
     }
     $("#tribute-form").reset();
     $("#char-count").textContent = "0";
+    lastShareTribute = tribute;
+    $("#download-btn").classList.add("hidden");
+    await drawShareCard(tribute);
     showStep("thanks");
   });
 

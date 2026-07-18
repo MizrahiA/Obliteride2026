@@ -16,26 +16,31 @@
     h1 { font-size: 1.5rem; margin-bottom: 1rem; }
     h2 { font-size: 1rem; margin: 1.6rem 0 .6rem; color: #b9b0d6; text-transform: uppercase; letter-spacing: .1em; }
     p { color: #b9b0d6; line-height: 1.5; margin-bottom: .8rem; }
-    input {
+    input, textarea {
       width: 100%; font: inherit; color: inherit;
       background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.2);
       border-radius: 8px; padding: .7rem .9rem; margin-bottom: .6rem;
     }
+    textarea { resize: vertical; min-height: 4.5em; }
     button {
       font: inherit; font-weight: 600; cursor: pointer;
       border: none; border-radius: 999px; padding: .55rem 1.1rem;
     }
     .primary { background: linear-gradient(135deg, #ff7a3d, #ffb347); color: #23100a; }
+    .save     { background: rgba(255,255,255,.12); color: #f5efe6; }
     .approve { background: #2e7d4f; color: #fff; }
     .reject  { background: #7d2e2e; color: #fff; }
     .card {
       background: #1b1638; border: 1px solid rgba(255,255,255,.12);
       border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: .8rem;
     }
-    .card .type { font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: #ffb347; }
-    .card .msg { margin: .4rem 0; font-size: 1.05rem; overflow-wrap: anywhere; }
-    .card .who { font-size: .85rem; color: #b9b0d6; margin-bottom: .7rem; }
-    .card .actions { display: flex; gap: .6rem; }
+    .card .type { font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: #ffb347; margin-bottom: .5rem; }
+    .card .msg-input { font-size: 1.02rem; }
+    .card .name-row { display: flex; gap: .6rem; align-items: center; margin-bottom: .7rem; }
+    .card .name-input { margin-bottom: 0; flex: 1; }
+    .card .show-name-label { display: flex; align-items: center; gap: .4rem; font-size: .82rem; color: #b9b0d6; white-space: nowrap; }
+    .card .actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+    .card .save-status { font-size: .82rem; color: #7fd99a; margin: 0; }
     .empty { color: #6f6894; font-style: italic; }
     .notice { background: rgba(255,179,71,.12); border: 1px solid #ffb347; border-radius: 10px; padding: .8rem 1rem; margin-bottom: 1rem; }
     .hidden { display: none; }
@@ -77,24 +82,50 @@
       const db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
       const TYPE_LABEL = { honor: "In honor of", memory: "In memory of", message: "Special message" };
 
+      function currentFields(el) {
+        return {
+          message: el.querySelector(".msg-input").value.trim(),
+          display_name: el.querySelector(".name-input").value.trim(),
+          show_name: el.querySelector(".show-name-input").checked,
+        };
+      }
+
       function card(t, pending) {
-        const who = t.display_name
-          ? `${t.display_name}${t.show_name ? "" : " (name hidden on site)"}`
-          : "Anonymous";
         const el = document.createElement("div");
         el.className = "card";
         el.innerHTML = `
           <div class="type">${TYPE_LABEL[t.type] || t.type}</div>
-          <div class="msg"></div>
-          <div class="who">From: </div>
+          <textarea class="msg-input" maxlength="280" rows="2"></textarea>
+          <div class="name-row">
+            <input class="name-input" placeholder="Name (optional)" />
+            <label class="show-name-label"><input type="checkbox" class="show-name-input" /> Show name</label>
+          </div>
           <div class="actions">
+            <button class="save">💾 Save</button>
             ${pending ? '<button class="approve">✓ Approve</button>' : ""}
             <button class="reject">${pending ? "✕ Reject" : "Remove"}</button>
+            <p class="save-status hidden"></p>
           </div>`;
-        el.querySelector(".msg").textContent = t.message;
-        el.querySelector(".who").append(who);
+        el.querySelector(".msg-input").value = t.message;
+        el.querySelector(".name-input").value = t.display_name || "";
+        el.querySelector(".show-name-input").checked = !!t.show_name;
+
+        function flashStatus(text, ok = true) {
+          const status = el.querySelector(".save-status");
+          status.textContent = text;
+          status.style.color = ok ? "#7fd99a" : "#ff7a7a";
+          status.classList.remove("hidden");
+          setTimeout(() => status.classList.add("hidden"), 2200);
+        }
+
+        el.querySelector(".save").onclick = async () => {
+          const { error } = await db.from("tributes").update(currentFields(el)).eq("id", t.id);
+          flashStatus(error ? "Save failed: " + error.message : "Saved ✓", !error);
+        };
         if (pending) el.querySelector(".approve").onclick = async () => {
-          await db.from("tributes").update({ approved: true }).eq("id", t.id);
+          const { error } = await db.from("tributes")
+            .update({ ...currentFields(el), approved: true }).eq("id", t.id);
+          if (error) { flashStatus("Approve failed: " + error.message, false); return; }
           refresh();
         };
         el.querySelector(".reject").onclick = async () => {

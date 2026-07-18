@@ -16,6 +16,9 @@ night sky — **in honor of** someone (pink, pulsing like a heartbeat),
    before it goes live anyway.
 3. The tribute (name + show/hide toggle, type, message ≤ 280 chars) is saved
    **unapproved**. You approve it from `admin.html`, and it rises into the sky.
+4. After submitting, they get a shareable image card of their lantern
+   (generated client-side) to post or send — a nudge for their own network
+   to donate too.
 
 With no database configured the site runs in **demo mode** with sample
 lanterns, so you can preview everything immediately.
@@ -41,8 +44,16 @@ folder. Your site appears at `https://<username>.github.io/Obliteride2026/`.
 ### 3. Approve tributes
 
 Visit `/admin.html`, enter your admin email, and click the magic link Supabase
-emails you (no password). Approve or reject pending tributes; approved ones
+emails you (no password). Approve or reject pending tributes — or edit a
+tribute's message/name first if there's a typo, then approve. Approved ones
 appear on the sky within a page refresh.
+
+### 4. (Optional) Get emailed when a new tribute comes in
+
+By default you have to remember to check `admin.html`. Run
+`supabase/notifications.sql` in the SQL editor to get an email the moment
+someone submits a tribute — see the comments at the top of that file for the
+one-time Resend signup + key setup.
 
 ## Files
 
@@ -50,8 +61,10 @@ appear on the sky within a page refresh.
 |---|---|
 | `index.html` + `css/style.css` + `js/app.js` | The lantern sky experience |
 | `js/config.js` | All settings: Supabase keys, donation URL, message length |
-| `admin.html` | Your private approval queue (magic-link login) |
+| `admin.html` | Your private approval queue (magic-link login, editable) |
 | `supabase/schema.sql` | Database table + security policies |
+| `supabase/notifications.sql` | Optional: email you on new submissions |
+| `assets/og-image.png` | Social share preview image (regenerate if you redesign the page) |
 
 ## Customizing
 
