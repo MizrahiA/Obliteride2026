@@ -183,6 +183,14 @@
       windLag: Math.random() * 2200,
       swirlPhase: Math.random() * Math.PI * 2,
       swirlFreq: 1.3 + Math.random() * 1.4,
+      // Once a lantern reaches its resting height it keeps gently
+      // bobbing up and down, not just side to side — and a gust nudges
+      // it vertically too, in a random direction per lantern, so a gust
+      // feels like real wind rather than a horizontal-only shove.
+      bobAmp: 14 + Math.random() * 22,
+      bobSpeed: 0.00035 + Math.random() * 0.00035,
+      bobPhase: Math.random() * Math.PI * 2,
+      vGustSign: Math.random() < 0.5 ? 1 : -1,
       rot: 0,
       ceiling,
     });
@@ -228,9 +236,24 @@
 
   function stepLanterns(t) {
     const W = window.innerWidth;
+    const H = window.innerHeight;
+    const topBound = headerClearance();
+    // Lanterns never bob low enough to reach the hill silhouette.
+    const floor = H * 0.68;
     for (const l of lanterns) {
       if (l.y > l.ceiling) l.y -= l.vy;
-      const windX = windForLantern(t, l) * l.windFactor;
+
+      const gust = windForLantern(t, l);
+      const windX = gust * l.windFactor;
+      const windY = gust * l.windFactor * 0.3 * l.vGustSign;
+
+      // Once a lantern has essentially arrived at its resting height, let
+      // it bob gently up and down on top of that anchor (plus a little
+      // vertical lift from any active gust) instead of freezing in place.
+      const settled = l.y <= l.ceiling + 4;
+      const bob = settled ? Math.sin(l.bobPhase + t * l.bobSpeed) * l.bobAmp + windY : 0;
+      const y = Math.min(Math.max(l.y + bob, topBound), floor);
+
       const x =
         l.x +
         Math.sin(l.phase + t * l.swaySpeed) * l.sway +
@@ -242,7 +265,7 @@
       const targetRot = Math.max(-14, Math.min(14, windX * 0.1));
       l.rot += (targetRot - l.rot) * 0.05;
       l.el.style.transform =
-        `translate(${clampedX}px, ${l.y}px) rotate(${l.rot.toFixed(2)}deg)`;
+        `translate(${clampedX}px, ${y}px) rotate(${l.rot.toFixed(2)}deg)`;
     }
   }
 
