@@ -34,6 +34,16 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
   background: radial-gradient(circle at 35% 35%, #fdf6d8, #e8d9a0 70%);
   box-shadow: 0 0 60px 18px rgba(253, 246, 216, .25);
 }
+@media (max-width: 640px) {
+  /* Smaller and tucked further into the corner so it never sits under
+     the header title on narrow phones. */
+  #moon { top: 1vh; right: 2.5vw; width: 34px; height: 34px; }
+}
+@media (max-width: 400px) {
+  /* The title's clamp() floor doesn't shrink enough on the narrowest
+     phones to leave the moon clear room next to it. */
+  .site-header h1 { font-size: 1.65rem; }
+}
 .moon-crater {
   position: absolute; top: 24%; left: 24%; width: 52%; aspect-ratio: 1;
   opacity: .9;
@@ -138,6 +148,11 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
 .hint {
   position: fixed; bottom: 3vh; right: 4vw; z-index: 5;
   color: var(--ink-dim); font-size: .85rem; opacity: .8;
+}
+@media (max-width: 640px) {
+  /* Not enough width for this alongside the footer without the two
+     colliding — the tap gesture is already obvious on a touchscreen. */
+  .hint { display: none; }
 }
 
 /* ------------------------------ buttons ------------------------------- */
@@ -252,9 +267,12 @@ textarea { resize: vertical; }
 
 /* ------------------------------ footer -------------------------------- */
 .site-footer {
-  position: fixed; bottom: 1vh; left: 0; right: 0; z-index: 5;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 5;
   text-align: center; font-size: .75rem; color: rgba(255,255,255,.45);
+  padding: 1.4rem 1rem .8rem;
+  background: linear-gradient(to top, rgba(5, 4, 15, .88) 30%, transparent);
+  pointer-events: none;
 }
-.site-footer a { color: rgba(255,255,255,.65); }
+.site-footer a { pointer-events: auto; color: rgba(255,255,255,.65); }
 .demo-note { margin-top: .3rem; color: var(--amber); }
 .demo-note code { font-size: .7rem; }
