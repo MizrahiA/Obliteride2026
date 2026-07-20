@@ -75,16 +75,11 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
 
 .lantern--memory  { --glow: var(--amber); }
 .lantern--honor   { --glow: var(--blossom); }
-.lantern--honor .paper { animation: flicker 2.6s ease-in-out infinite, heartbeat 1.8s ease-in-out infinite; }
 .lantern--message { --glow: var(--ember); }
 
 @keyframes flicker {
   0%, 100% { opacity: .92; } 50% { opacity: 1; }
   25% { opacity: .96; } 75% { opacity: .88; }
-}
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); } 12% { transform: scale(1.08); }
-  24% { transform: scale(1); } 36% { transform: scale(1.06); } 48% { transform: scale(1); }
 }
 
 /* ----------------------------- scenery -------------------------------- */
@@ -101,7 +96,10 @@ h1, h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600; }
 
 .peloton {
   position: absolute; bottom: 8vh; left: 0; width: 340px; height: 46px;
-  filter: drop-shadow(0 0 1px #000);
+  filter:
+    drop-shadow(0 0 2px rgba(255, 200, 130, .8))
+    drop-shadow(0 0 6px rgba(255, 179, 71, .55))
+    drop-shadow(0 0 12px rgba(255, 179, 71, .3));
   animation: ride-by 42s linear infinite;
   animation-delay: 3s;
 }
